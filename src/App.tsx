@@ -1,0 +1,247 @@
+import { useEffect, useMemo, useState } from "react";
+import { modelChecks } from "./models/checks";
+import { labById, sections } from "./labs/registry";
+import type { Field, Lab, LabValue, LabValues, Preset } from "./labs/types";
+import "./styles.css";
+
+type State = { labId: string; values: LabValues; hide: boolean };
+
+function readState(): State {
+  const params = new URLSearchParams(window.location.search);
+  const lab = labById(params.get("lab") ?? "market");
+  const values: LabValues = { ...lab.initial };
+  for (const [key, initial] of Object.entries(lab.initial)) {
+    const raw = params.get(key);
+    if (raw == null) continue;
+    if (typeof initial === "number") {
+      const parsed = Number(raw);
+      if (Number.isFinite(parsed)) values[key] = parsed;
+    } else if (typeof initial === "boolean") {
+      values[key] = raw === "1" || raw === "true";
+    } else {
+      values[key] = raw;
+    }
+  }
+  return { labId: lab.id, values, hide: params.get("hide") === "1" };
+}
+
+function writeUrl(state: State, replace: boolean) {
+  const lab = labById(state.labId);
+  const params = new URLSearchParams();
+  params.set("lab", lab.id);
+  if (state.hide) params.set("hide", "1");
+  for (const [key, initial] of Object.entries(lab.initial)) {
+    const value = state.values[key];
+    if (value === undefined || value === initial) continue;
+    params.set(key, typeof value === "boolean" ? (value ? "1" : "0") : String(value));
+  }
+  const next = `${window.location.pathname}?${params.toString()}`;
+  if (replace) window.history.replaceState(null, "", next);
+  else window.history.pushState(null, "", next);
+}
+
+function matches(lab: Lab, values: LabValues, preset: Preset): boolean {
+  const merged = { ...lab.initial, ...preset.values };
+  return Object.keys(lab.initial).every((key) => values[key] === merged[key]);
+}
+
+export function App() {
+  const [state, setState] = useState<State>(readState);
+  const lab = labById(state.labId);
+  const checks = useMemo(() => modelChecks(), []);
+  const view = useMemo(() => {
+    try {
+      return lab.build(state.values, state.hide);
+    } catch {
+      return {
+        diagram: null,
+        readouts: [],
+        english: "These parameter values cannot be drawn. Move PED and PES back toward 1.",
+        chinese: "这组弹性画不出来。把 PED 和 PES 调回 1 附近。",
+      };
+    }
+  }, [lab, state.values, state.hide]);
+
+  useEffect(() => {
+    const onPop = () => setState(readState());
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  function commit(next: State, replace: boolean) {
+    setState(next);
+    writeUrl(next, replace);
+  }
+
+  function selectLab(id: string) {
+    const nextLab = labById(id);
+    commit({ labId: nextLab.id, values: { ...nextLab.initial }, hide: false }, false);
+  }
+
+  function setValue(key: string, value: LabValue) {
+    const merged = { ...state.values, [key]: value };
+    const values = lab.onChange ? lab.onChange(key, merged) : merged;
+    commit({ ...state, values }, true);
+  }
+
+  function applyPreset(preset: Preset) {
+    commit({ ...state, values: { ...lab.initial, ...preset.values }, hide: false }, true);
+  }
+
+  function renderFields(fields: Field[]) {
+    return fields.map((field) => {
+      if (field.kind === "slider") {
+        const value = Number(state.values[field.key]);
+        return (
+          <label key={field.key} className="field">
+            <span>
+              {field.label}
+              <b>{Number.isFinite(value) ? value : ""}</b>
+            </span>
+            <input
+              type="range"
+              min={field.min}
+              max={field.max}
+              step={field.step}
+              value={Number.isFinite(value) ? value : field.min}
+              onChange={(event) => setValue(field.key, Number(event.target.value))}
+            />
+          </label>
+        );
+      }
+      if (field.kind === "number") {
+        return (
+          <label key={field.key} className="field">
+            <span>{field.label}</span>
+            <input
+              type="number"
+              min={field.min}
+              max={field.max}
+              step={field.step}
+              value={Number(state.values[field.key])}
+              onChange={(event) => setValue(field.key, Number(event.target.value))}
+            />
+          </label>
+        );
+      }
+      if (field.kind === "select") {
+        return (
+          <label key={field.key} className="field">
+            <span>{field.label}</span>
+            <select value={String(state.values[field.key])} onChange={(event) => setValue(field.key, event.target.value)}>
+              {field.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        );
+      }
+      return (
+        <label key={field.key} className="check">
+          <input type="checkbox" checked={state.values[field.key] === true} onChange={(event) => setValue(field.key, event.target.checked)} />
+          {field.label}
+        </label>
+      );
+    });
+  }
+
+  return (
+    <div className="app">
+      <aside className="sidebar">
+        <header className="brand">
+          <p className="eyebrow">CIE 9708 · AS Level</p>
+          <h1>Interactive diagrams</h1>
+          <p className="brand-zh">按 2026–2028 考纲把标准图做成可调参数的实验。</p>
+        </header>
+        <nav>
+          {sections.map((section) => (
+            <div key={section.title} className="nav-section">
+              <h2>{section.title}</h2>
+              <p>{section.chinese}</p>
+              {section.ids.map((id) => {
+                const item = labById(id);
+                return (
+                  <button key={id} className={id === lab.id ? "nav-item active" : "nav-item"} onClick={() => selectLab(id)}>
+                    <span>{item.title}</span>
+                    <small>{item.code}</small>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
+        </nav>
+      </aside>
+      <main className="stage">
+        <header className="stage-head">
+          <div>
+            <p className="eyebrow">{lab.code}</p>
+            <h2>{lab.title}</h2>
+            <p className="chinese-title">{lab.chinese}</p>
+          </div>
+          <button className="reveal" onClick={() => commit({ ...state, hide: !state.hide }, true)}>
+            {state.hide ? "Reveal" : "Hide the result"}
+          </button>
+        </header>
+        <div className="stage-body">
+          {checks.length > 0 ? <p className="checks">Model check failed: {checks.join("; ")}</p> : null}
+          <div className="canvas">{view.diagram}</div>
+          {view.legend && view.legend.length > 0 && !state.hide ? (
+            <ul className="legend">
+              {view.legend.map((item) => (
+                <li key={item.name}>
+                  <i style={{ background: item.color }} />
+                  {item.name}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+        <div className="parameter-bar">{renderFields(lab.fields(state.values))}</div>
+        <footer className="explain">
+          {state.hide ? (
+            <>
+              <p className="english">The curves are drawn. Predict the new equilibrium, then reveal the labels, areas and numbers.</p>
+              <p className="chinese">曲线已经画出。先判断新的均衡，再揭晓标签、面积和数字。</p>
+            </>
+          ) : (
+            <>
+              <p className="english">{view.english}</p>
+              <p className="chinese">{view.chinese}</p>
+            </>
+          )}
+        </footer>
+      </main>
+      <aside className="controls">
+        <section>
+          <h3>Presets</h3>
+          <div className="presets">
+            {lab.presets.map((preset) => (
+              <button key={preset.id} className={matches(lab, state.values, preset) ? "preset active" : "preset"} onClick={() => applyPreset(preset)}>
+                <strong>{preset.label}</strong>
+                <span>{preset.detail}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        <section>
+          <h3>Readings</h3>
+          <dl className="readouts">
+            {view.readouts.map((row) => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{state.hide ? "—" : row.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+        <section className="pitfall">
+          <h3>Examiner pitfall</h3>
+          <p>{lab.pitfall.en}</p>
+          <p className="chinese">{lab.pitfall.zh}</p>
+        </section>
+      </aside>
+    </div>
+  );
+}
