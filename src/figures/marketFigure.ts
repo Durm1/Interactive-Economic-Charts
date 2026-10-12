@@ -49,15 +49,17 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
   figure: MarketFigure;
   legend: LegendItem[];
 } {
+  const adValorem = (input.adValorem ?? 0) > 0.001;
   const changed =
     Math.abs(input.demandShift) > 0.05 ||
     Math.abs(input.supplyShift) > 0.05 ||
     input.tax > 0.05 ||
     input.subsidy > 0.05 ||
+    adValorem ||
     result.binding !== "none";
   const demandMoved = Math.abs(input.demandShift) > 0.05;
   const supplyMoved = Math.abs(input.supplyShift) > 0.05;
-  const wedge = input.tax > 0.05 || input.subsidy > 0.05;
+  const wedge = input.tax > 0.05 || input.subsidy > 0.05 || adValorem;
 
   const qs = [result.baseEq.q * 1.8, result.traded, result.qDemanded, result.qSupplied].filter((q) => q > 0 && q < 8000);
   const prices = [result.baseEq.p * 2, result.pc, result.pp].filter((p) => p > 0 && p < 8000);
@@ -144,7 +146,7 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
       a: { q: result.traded, p: result.pp },
       b: { q: result.traded, p: result.pc },
       solution: true,
-      label: input.tax > 0 ? "tax" : "subsidy",
+      label: adValorem ? `${Math.round((input.adValorem ?? 0) * 100)}%` : input.tax > 0 ? "tax" : "subsidy",
     });
   }
 
@@ -195,7 +197,7 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
       solution: true,
     });
     legend.push({
-      name: input.tax > 0 ? "Tax revenue" : "Subsidy expenditure",
+      name: input.subsidy > 0.05 && !adValorem && input.tax <= 0.05 ? "Subsidy expenditure" : "Tax revenue",
       color: fills.fiscal,
     });
   }
@@ -266,7 +268,7 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
       arrows.push({
         a: { q: supplyArrowQ, p: Math.max(0, from) },
         b: { q: supplyArrowQ, p: Math.max(0, to) },
-        label: input.tax > 0 ? "specific tax" : input.subsidy > 0 ? "subsidy" : input.supplyShift > 0 ? "decrease in S" : "increase in S",
+        label: adValorem ? "ad valorem tax" : input.tax > 0 ? "specific tax" : input.subsidy > 0 ? "subsidy" : input.supplyShift > 0 ? "decrease in S" : "increase in S",
         labelDy: -14,
       });
     }

@@ -40,6 +40,25 @@ function writeUrl(state: State, replace: boolean) {
   else window.history.pushState(null, "", next);
 }
 
+function decimalPlaces(step: number): number {
+  const text = String(step);
+  const dot = text.indexOf(".");
+  return dot === -1 ? 0 : text.length - dot - 1;
+}
+
+/** Keep each number in a fixed-width slot so a longer digit does not reflow the sentence. */
+function stableFigures(text: string) {
+  const parts = text.split(/(-?\d+\.\d+)/g);
+  return parts.map((part, index) => {
+    if (!/^-?\d+\.\d+$/.test(part)) return part;
+    return (
+      <span key={index} className="stable-num">
+        {Number(part).toFixed(2)}
+      </span>
+    );
+  });
+}
+
 function matches(lab: Lab, values: LabValues, preset: Preset): boolean {
   const merged = { ...lab.initial, ...preset.values };
   return Object.keys(lab.initial).every((key) => values[key] === merged[key]);
@@ -88,6 +107,10 @@ export function App() {
     commit({ ...state, values: { ...lab.initial, ...preset.values }, hide: false }, true);
   }
 
+  function resetValues() {
+    commit({ ...state, values: { ...lab.initial }, hide: false }, true);
+  }
+
   function renderFields(fields: Field[]) {
     return fields.map((field) => {
       if (field.kind === "slider") {
@@ -98,14 +121,25 @@ export function App() {
               {field.label}
               <b>{Number.isFinite(value) ? value : ""}</b>
             </span>
-            <input
-              type="range"
-              min={field.min}
-              max={field.max}
-              step={field.step}
-              value={Number.isFinite(value) ? value : field.min}
-              onChange={(event) => setValue(field.key, Number(event.target.value))}
-            />
+            <span className="slider">
+              <input
+                type="range"
+                min={field.min}
+                max={field.max}
+                step={field.step}
+                value={Number.isFinite(value) ? value : field.min}
+                onChange={(event) => setValue(field.key, Number(event.target.value))}
+                onKeyDown={(event) => {
+                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                  event.preventDefault();
+                  const direction = event.key === "ArrowRight" ? 1 : -1;
+                  const current = Number.isFinite(value) ? value : field.min;
+                  const places = decimalPlaces(field.step);
+                  const next = Math.min(field.max, Math.max(field.min, current + direction * field.step));
+                  setValue(field.key, Number(next.toFixed(places)));
+                }}
+              />
+            </span>
           </label>
         );
       }
@@ -180,9 +214,14 @@ export function App() {
             <h2>{lab.title}</h2>
             <p className="chinese-title">{lab.chinese}</p>
           </div>
-          <button className="reveal" onClick={() => commit({ ...state, hide: !state.hide }, true)}>
-            {state.hide ? "Reveal" : "Hide the result"}
-          </button>
+          <div className="stage-actions">
+            <button className="reset" type="button" onClick={resetValues}>
+              Reset to default
+            </button>
+            <button className="reveal" type="button" onClick={() => commit({ ...state, hide: !state.hide }, true)}>
+              {state.hide ? "Reveal" : "Hide the result"}
+            </button>
+          </div>
         </header>
         <div className="stage-body">
           {checks.length > 0 ? <p className="checks">Model check failed: {checks.join("; ")}</p> : null}
@@ -207,8 +246,8 @@ export function App() {
             </>
           ) : (
             <>
-              <p className="english">{view.english}</p>
-              <p className="chinese">{view.chinese}</p>
+              <p className="english">{stableFigures(view.english)}</p>
+              <p className="chinese">{stableFigures(view.chinese)}</p>
             </>
           )}
         </footer>

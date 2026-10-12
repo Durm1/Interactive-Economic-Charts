@@ -20,6 +20,8 @@ export type MarketInput = {
   supplyShift: number;
   tax: number;
   subsidy: number;
+  /** Share of the consumer price taken as tax, from 0 to 1. Pivots supply instead of shifting it in parallel. */
+  adValorem?: number;
   ceiling: number | null;
   floor: number | null;
   /** A disequilibrium price that is not a legal control. */
@@ -105,8 +107,9 @@ export function solveMarket(input: MarketInput): MarketResult {
   const baseSupply = curveFromElasticity(pRef, qRef, input.pes, "supply");
   const demand = shiftVertical(baseDemand, input.demandShift);
   const supply = shiftVertical(baseSupply, input.supplyShift);
+  const rate = Math.min(0.85, Math.max(0, input.adValorem ?? 0));
   const wedge = input.tax - input.subsidy;
-  const supplyFaced = shiftVertical(supply, wedge);
+  const supplyFaced = facedByBuyers(supply, wedge, rate);
 
   const baseWelfare = welfare(baseDemand, baseSupply, qRef, pRef, pRef);
   const pre = intersect(demand, supply);
@@ -130,7 +133,7 @@ export function solveMarket(input: MarketInput): MarketResult {
   };
 
   let pc = hit?.p ?? 0;
-  let pp = pc - wedge;
+  let pp = priceReceived(pc, wedge, rate);
   let binding: MarketResult["binding"] = "none";
 
   if (!hit || hit.q <= 0 || hit.p <= 0) {
@@ -144,16 +147,16 @@ export function solveMarket(input: MarketInput): MarketResult {
   if (ceilingBinds && input.ceiling != null) {
     binding = "ceiling";
     pc = input.ceiling;
-    pp = pc - wedge;
+    pp = priceReceived(pc, wedge, rate);
   } else if (floorBinds && input.floor != null) {
     binding = "floor";
     pc = input.floor;
-    pp = pc - wedge;
+    pp = priceReceived(pc, wedge, rate);
   } else if (input.observedPrice != null && input.ceiling == null && input.floor == null) {
     if (Math.abs(input.observedPrice - hit.p) > 0.05) {
       binding = "observed";
       pc = input.observedPrice;
-      pp = pc - wedge;
+      pp = priceReceived(pc, wedge, rate);
     }
   }
 
@@ -161,7 +164,7 @@ export function solveMarket(input: MarketInput): MarketResult {
   const qSupplied = Math.max(0, qtyAt(supply, pp));
   const traded = Math.min(qDemanded, qSupplied);
   const { cs, ps } = welfare(demand, supply, traded, pc, pp);
-  const taxRevenue = Math.max(0, input.tax) * traded;
+  const taxRevenue = (rate > 0 ? rate * pc : Math.max(0, input.tax)) * traded;
   const subsidyCost = Math.max(0, input.subsidy) * traded;
 
   let efficient = 0;
@@ -201,4 +204,18 @@ export function sameCurve(a: Curve, b: Curve): boolean {
 
 export function demandPrice(result: MarketResult, q: number): number {
   return priceAt(result.demand, q);
+}
+
+/** Specific wedge is a parallel shift. An ad valorem rate pivots a linear supply around a steeper slope. */
+function facedByBuyers(supply: Curve, wedge: number, rate: number): Curve {
+  if (rate > 0 && supply.kind === "linear") {
+    const factor = 1 / (1 - rate);
+    return { kind: "linear", intercept: supply.intercept * factor, slope: supply.slope * factor };
+  }
+  return shiftVertical(supply, wedge);
+}
+
+function priceReceived(pc: number, wedge: number, rate: number): number {
+  if (rate > 0) return pc * (1 - rate);
+  return pc - wedge;
 }

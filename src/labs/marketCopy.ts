@@ -30,7 +30,7 @@ export function burdenSentence(result: MarketResult): { en: string; zh: string }
 export function movementSentence(input: MarketInput, result: MarketResult): { en: string; zh: string } {
   const demandMoved = Math.abs(input.demandShift) > 0.05;
   const supplyMoved = Math.abs(input.supplyShift) > 0.05;
-  const wedge = input.tax > 0.05 || input.subsidy > 0.05;
+  const wedge = input.tax > 0.05 || input.subsidy > 0.05 || (input.adValorem ?? 0) > 0.001;
   const partsEn: string[] = [];
   const partsZh: string[] = [];
 
@@ -38,7 +38,7 @@ export function movementSentence(input: MarketInput, result: MarketResult): { en
     partsEn.push(input.demandShift > 0 ? "Demand increases, so D shifts right to D1." : "Demand decreases, so D shifts left to D1.");
     partsZh.push(input.demandShift > 0 ? "需求增加，D 右移到 D1。" : "需求减少，D 左移到 D1。");
   }
-  if (supplyMoved && input.tax <= 0.05 && input.subsidy <= 0.05) {
+  if (supplyMoved && input.tax <= 0.05 && input.subsidy <= 0.05 && (input.adValorem ?? 0) <= 0.001) {
     partsEn.push(input.supplyShift > 0 ? "Higher costs decrease supply: S shifts up and left to S1." : "Lower costs increase supply: S shifts down and right to S1.");
     partsZh.push(input.supplyShift > 0 ? "成本上升使供给减少，S 向左上移到 S1。" : "成本下降使供给增加，S 向右下移到 S1。");
   }

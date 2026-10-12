@@ -88,6 +88,33 @@ export function modelChecks(): string[] {
   close(subsidy.pp, 12, "subsidy pp");
   close(subsidy.traded, 48, "subsidy q");
 
+  const adValorem = solveMarket({
+    pRef: 10,
+    qRef: 40,
+    ped: 1,
+    pes: 1,
+    demandShift: 0,
+    supplyShift: 0,
+    tax: 0,
+    subsidy: 0,
+    adValorem: 0.2,
+    ceiling: null,
+    floor: null,
+    observedPrice: null,
+  });
+  close(adValorem.traded, 320 / 9, "ad valorem q");
+  close(adValorem.pc, 100 / 9, "ad valorem pc");
+  close(adValorem.pp, 80 / 9, "ad valorem pp");
+  close(adValorem.taxRevenue, 6400 / 81, "ad valorem revenue");
+  close(adValorem.dwl, 400 / 81, "ad valorem dwl");
+  assert(Math.abs(adValorem.supplyFaced.kind === "linear" ? adValorem.supplyFaced.slope : 0) > 0.3, "ad valorem pivots");
+  assert(
+    adValorem.supply.kind === "linear" &&
+      adValorem.supplyFaced.kind === "linear" &&
+      Math.abs(adValorem.supplyFaced.slope - adValorem.supply.slope) > 0.05,
+    "ad valorem slope differs from specific parallel shift",
+  );
+
   const classical = solveAdas({ mode: "vertical", adShift: 0, srasShift: 0, capacity: 0 });
   close(classical.y, 100, "classical y");
   close(classical.pl, 90, "classical pl");
