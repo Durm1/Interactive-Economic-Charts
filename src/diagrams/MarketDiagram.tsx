@@ -47,9 +47,31 @@ function Geometry({
     <g clipPath={`url(#${clipId})`}>
       {figure.areas
         .filter((area) => !(hide && area.solution))
-        .map((area, index) => (
-          <path key={`a${index}`} d={`${poly(scales, area.points)} Z`} fill={area.fill} stroke="none" />
-        ))}
+        .map((area, index) => {
+          const d = `${poly(scales, area.points)} Z`;
+          if (!area.hatch) return <path key={`a${index}`} d={d} fill={area.fill} stroke="none" />;
+          const xs = area.points.map((pt) => scales.x(pt.q));
+          const ys = area.points.map((pt) => scales.y(pt.p));
+          const left = Math.min(...xs);
+          const right = Math.max(...xs);
+          const top = Math.min(...ys);
+          const bottom = Math.max(...ys);
+          const hatchId = `${markerId}-hatch-${index}`;
+          const lines = [];
+          for (let y = top + 4; y < bottom - 1; y += 7) {
+            lines.push(
+              <line key={y} x1={left} x2={right} y1={y} y2={y} stroke="#1c1915" strokeWidth="1" strokeDasharray="3 3" />,
+            );
+          }
+          return (
+            <g key={`a${index}`}>
+              <clipPath id={hatchId}>
+                <path d={d} />
+              </clipPath>
+              <g clipPath={`url(#${hatchId})`}>{lines}</g>
+            </g>
+          );
+        })}
       {figure.curves.map((item, index) => {
         const segment = visibleSegment(item.curve, scales.qMax, scales.pMax);
         if (!segment) return null;

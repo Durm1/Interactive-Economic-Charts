@@ -18,7 +18,7 @@ export type Preset = {
 
 export type LabView = {
   diagram: ReactNode;
-  legend?: { name: string; color: string }[];
+  legend?: { name: string; color: string; dashed?: boolean }[];
   readouts: { label: string; value: string }[];
   english: string;
   chinese: string;

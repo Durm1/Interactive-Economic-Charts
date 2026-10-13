@@ -230,7 +230,7 @@ export function App() {
             <ul className="legend">
               {view.legend.map((item) => (
                 <li key={item.name}>
-                  <i style={{ background: item.color }} />
+                  <i className={item.dashed ? "dashed" : undefined} style={item.dashed ? undefined : { background: item.color }} />
                   {item.name}
                 </li>
               ))}

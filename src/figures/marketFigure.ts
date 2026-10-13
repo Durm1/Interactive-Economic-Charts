@@ -20,7 +20,7 @@ export type MarketFigure = {
   pMax: number;
   aria: string;
   curves: { curve: Curve; label: string; ghost?: boolean }[];
-  areas: { points: Pt[]; fill: string; solution?: boolean }[];
+  areas: { points: Pt[]; fill: string; solution?: boolean; hatch?: boolean }[];
   lines: { a: Pt; b: Pt; label?: string; dashed?: boolean; ghost?: boolean; solution?: boolean }[];
   markers: { at: Pt; label: string; hollow?: boolean; solution?: boolean }[];
   arrows: { a: Pt; b: Pt; label: string; solution?: boolean; labelDy?: number }[];
@@ -28,7 +28,7 @@ export type MarketFigure = {
   axisQuantities: { q: number; label: string; fromP: number; solution?: boolean }[];
 };
 
-export type LegendItem = { name: string; color: string };
+export type LegendItem = { name: string; color: string; dashed?: boolean };
 
 type Options = {
   xLabel: string;
@@ -186,6 +186,7 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
   }
 
   if (opts.showFiscal && wedge && result.traded > 0) {
+    const subsidyArea = input.subsidy > 0.05 && !adValorem && input.tax <= 0.05;
     areas.push({
       points: [
         { q: 0, p: Math.min(result.pc, result.pp) },
@@ -193,12 +194,14 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
         { q: result.traded, p: Math.max(result.pc, result.pp) },
         { q: 0, p: Math.max(result.pc, result.pp) },
       ],
-      fill: fills.fiscal,
+      fill: subsidyArea ? "none" : fills.fiscal,
+      hatch: subsidyArea,
       solution: true,
     });
     legend.push({
-      name: input.subsidy > 0.05 && !adValorem && input.tax <= 0.05 ? "Subsidy expenditure" : "Tax revenue",
-      color: fills.fiscal,
+      name: subsidyArea ? "Subsidy expenditure" : "Tax revenue",
+      color: subsidyArea ? "#1c1915" : fills.fiscal,
+      dashed: subsidyArea,
     });
   }
 

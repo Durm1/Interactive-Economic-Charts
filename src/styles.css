@@ -229,6 +229,9 @@ button, input, select { font: inherit; color: inherit; }
   border: 1px solid var(--line);
   vertical-align: -1px;
 }
+.legend i.dashed {
+  background: repeating-linear-gradient(to bottom, transparent 0 2px, #1c1915 2px 3px);
+}
 
 .explain {
   width: 100%;
