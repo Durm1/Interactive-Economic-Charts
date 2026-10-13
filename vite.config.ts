@@ -42,6 +42,9 @@ function sliderLimitsPlugin(): Plugin {
         });
       });
     },
+    handleHotUpdate(ctx) {
+      if (ctx.file === limitsFile) return [];
+    },
   };
 }
 

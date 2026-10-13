@@ -30,8 +30,8 @@ export const bufferLab: Lab = {
     pesField,
   ],
   build: (values, hide) => {
-    const floor = Math.min(numOf(values, "floor"), numOf(values, "ceiling") - 0.5);
-    const ceiling = Math.max(numOf(values, "ceiling"), floor + 0.5);
+    const floor = numOf(values, "floor");
+    const ceiling = numOf(values, "ceiling");
     const input = marketInput(values, {
       supplyShift: -numOf(values, "harvest"),
       floor,

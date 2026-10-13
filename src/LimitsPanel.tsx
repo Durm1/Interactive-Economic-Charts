@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Field } from "./labs/types";
 import type { SliderLimits } from "./sliderLimits";
 
@@ -19,8 +19,11 @@ export function LimitsPanel({
   const signature = sliders.map((field) => (field.kind === "slider" ? `${field.key}:${field.min}:${field.max}` : "")).join("|");
   const [draft, setDraft] = useState<Draft>({});
   const [status, setStatus] = useState("");
+  const dirty = useRef(false);
+  const savedKey = JSON.stringify(limits[labId] ?? {});
 
   useEffect(() => {
+    if (dirty.current) return;
     const next: Draft = {};
     for (const field of fields) {
       if (field.kind !== "slider") continue;
@@ -28,13 +31,22 @@ export function LimitsPanel({
       next[field.key] = { min: String(saved?.min ?? field.min), max: String(saved?.max ?? field.max) };
     }
     setDraft(next);
-  }, [labId, signature, limits]);
+  }, [labId, signature, savedKey]);
 
   useEffect(() => {
     setStatus("");
   }, [labId]);
 
+  function edit(key: string, part: "min" | "max", value: string) {
+    dirty.current = true;
+    setDraft((prev) => {
+      const current = prev[key] ?? { min: "", max: "" };
+      return { ...prev, [key]: { ...current, [part]: value } };
+    });
+  }
+
   async function save(nextLimits: SliderLimits) {
+    dirty.current = false;
     setStatus("Saving…");
     try {
       const response = await fetch("/api/slider-limits", {
@@ -43,12 +55,14 @@ export function LimitsPanel({
         body: JSON.stringify(nextLimits),
       });
       if (!response.ok) {
+        dirty.current = true;
         setStatus(await response.text());
         return;
       }
       onSaved(nextLimits);
       setStatus("Saved");
     } catch {
+      dirty.current = true;
       setStatus("Save failed. Restart the dev server and try again.");
     }
   }
@@ -96,14 +110,14 @@ export function LimitsPanel({
               aria-label={`${field.label} minimum`}
               value={row.min}
               step="any"
-              onChange={(event) => setDraft((prev) => ({ ...prev, [field.key]: { ...row, min: event.target.value } }))}
+              onChange={(event) => edit(field.key, "min", event.target.value)}
             />
             <input
               type="number"
               aria-label={`${field.label} maximum`}
               value={row.max}
               step="any"
-              onChange={(event) => setDraft((prev) => ({ ...prev, [field.key]: { ...row, max: event.target.value } }))}
+              onChange={(event) => edit(field.key, "max", event.target.value)}
             />
           </label>
         );

@@ -155,8 +155,9 @@ export function App() {
             </span>
             <span className="slider">
               <input
-                type="range"
-                min={field.min}
+              type="range"
+              key={`${field.key}:${field.min}:${field.max}:${field.step}`}
+              min={field.min}
                 max={field.max}
                 step={field.step}
                 value={Number.isFinite(value) ? value : field.min}
