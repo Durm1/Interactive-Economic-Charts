@@ -14,7 +14,7 @@ import {
 } from "./labels";
 import { ChartFrame, placeAxisTags, poly, ticks, type Scales } from "./frame";
 
-type ShortLabel = { text: string; candidates: Candidate[]; ghost?: boolean; font: number };
+type ShortLabel = { text: string; candidates: Candidate[]; ghost?: boolean; note?: boolean; font: number };
 type Note = { text: string; x: number; y: number };
 
 export function MarketDiagram({ figure, hide }: { figure: MarketFigure; hide: boolean }) {
@@ -183,7 +183,7 @@ function PlacedLabels({ figure, hide, scales, markerId }: { figure: MarketFigure
           x={label.at.x}
           y={label.at.y}
           textAnchor={label.at.anchor}
-          className={label.ghost ? "curve-label ghost" : "curve-label"}
+          className={label.ghost ? "curve-label ghost" : label.note ? "note-label" : "curve-label"}
         >
           {label.text}
         </text>
@@ -271,11 +271,11 @@ function layoutFigure(figure: MarketFigure, hide: boolean, scales: Scales, unit:
   ];
   const noteBlocked: Box[] = tags.map((tag) => tag.box);
 
-  const shorts: { text: string; at: Candidate; ghost?: boolean }[] = [];
+  const shorts: { text: string; at: Candidate; ghost?: boolean; note?: boolean }[] = [];
   const place = (label: ShortLabel) => {
     const { at, box } = chooseCandidate(label.text, label.candidates, occupied, label.font, bounds);
     noteBlocked.push(box);
-    shorts.push({ text: label.text, at, ghost: label.ghost });
+    shorts.push({ text: label.text, at, ghost: label.ghost, note: label.note });
   };
 
   for (const marker of figure.markers) {
@@ -329,13 +329,13 @@ function layoutFigure(figure: MarketFigure, hide: boolean, scales: Scales, unit:
   for (const item of figure.curves) {
     const segment = visibleSegment(item.curve, scales.qMax, scales.pMax);
     if (!segment) continue;
-    const end = segment[segment.length - 1];
-    const x = scales.x(end.q);
-    const y = scales.y(end.p);
     const demand = item.label.startsWith("D");
-    const nearRight = end.q > scales.qMax * 0.9;
+    const spot = curveNameSpot(segment, demand, scales.pMax);
+    const x = scales.x(spot.q);
+    const y = scales.y(spot.p);
+    const nearRight = spot.q > scales.qMax * 0.9;
     const habitDx = nearRight ? -18 : 12;
-    const habitDy = demand ? 18 : -16;
+    const habitDy = -14;
     const side = (dx: number): Candidate["anchor"] => (dx < 0 ? "end" : "start");
     place({
       text: item.label,
@@ -359,10 +359,24 @@ function layoutFigure(figure: MarketFigure, hide: boolean, scales: Scales, unit:
   };
   for (const arrow of figure.arrows) {
     if (hide && arrow.solution) continue;
-    addNote(arrow.label, (scales.x(arrow.a.q) + scales.x(arrow.b.q)) / 2, (scales.y(arrow.a.p) + scales.y(arrow.b.p)) / 2);
+    seen.add(arrow.label);
+    const x = (scales.x(arrow.a.q) + scales.x(arrow.b.q)) / 2;
+    const y = (scales.y(arrow.a.p) + scales.y(arrow.b.p)) / 2;
+    const dy = arrow.labelDy ?? -8;
+    place({
+      text: arrow.label,
+      note: true,
+      font: noteFont,
+      candidates: [
+        { x: x + 12, y: y + dy, anchor: "start" },
+        { x: x - 12, y: y + dy, anchor: "end" },
+        { x: x + 12, y: y - dy, anchor: "start" },
+        { x: x - 12, y: y - dy, anchor: "end" },
+      ],
+    });
   }
   for (const line of figure.lines) {
-    if (!line.label || !isCallout(line.label) || (hide && line.solution)) continue;
+    if (!line.label || !isCallout(line.label) || seen.has(line.label) || (hide && line.solution)) continue;
     addNote(line.label, (scales.x(line.a.q) + scales.x(line.b.q)) / 2, (scales.y(line.a.p) + scales.y(line.b.p)) / 2);
   }
 
@@ -383,4 +397,21 @@ function layoutFigure(figure: MarketFigure, hide: boolean, scales: Scales, unit:
   });
 
   return { shorts, tags, notes: placedNotes, leaders };
+}
+
+/** Keep D and S on the sloping part of the curve, not on the x-axis. */
+function curveNameSpot(
+  segment: { q: number; p: number }[],
+  demand: boolean,
+  pMax: number,
+): { q: number; p: number } {
+  const start = segment[0];
+  const end = segment[segment.length - 1];
+  const low = (point: { p: number }) => point.p < pMax * 0.18;
+  if (demand && low(end)) {
+    const t = 0.62;
+    return { q: start.q + (end.q - start.q) * t, p: start.p + (end.p - start.p) * t };
+  }
+  if (!demand && low(end) && !low(start)) return start;
+  return end;
 }
