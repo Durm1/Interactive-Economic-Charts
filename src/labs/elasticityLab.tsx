@@ -196,14 +196,14 @@ export const elasticityLab: Lab = {
     if (mode === "yed") {
       return [
         ...common,
-        { kind: "slider", key: "yed", label: "YED", min: -4, max: 5, step: 0.1 },
-        { kind: "slider", key: "income", label: "Change in income (%)", min: -60, max: 80, step: 1 },
+        { kind: "slider", key: "yed", label: "YED", min: -2, max: 3, step: 0.1 },
+        { kind: "slider", key: "income", label: "Change in income (%)", min: -30, max: 40, step: 1 },
       ];
     }
     return [
       ...common,
-      { kind: "slider", key: "xed", label: "XED", min: -4, max: 4, step: 0.1 },
-      { kind: "slider", key: "shock", label: "Supply shock in market A (costs +)", min: -12, max: 12, step: 0.5 },
+      { kind: "slider", key: "xed", label: "XED", min: -2, max: 2, step: 0.1 },
+      { kind: "slider", key: "shock", label: "Supply shock in market A (costs +)", min: -6, max: 6, step: 0.5 },
     ];
   },
   build: (values, hide) => buildElasticity(values, hide),

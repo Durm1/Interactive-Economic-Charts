@@ -32,7 +32,7 @@ export const controlsLab: Lab = {
         { value: "wage", label: "Minimum wage" },
       ],
     },
-    { kind: "slider", key: "level", label: "Price or wage", min: 0, max: 28, step: 0.5 },
+    { kind: "slider", key: "level", label: "Price or wage", min: 3, max: 18, step: 0.5 },
     pedField,
     pesField,
   ],

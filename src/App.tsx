@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { modelChecks } from "./models/checks";
 import { labById, sections } from "./labs/registry";
 import type { Field, Lab, LabValue, LabValues, Preset } from "./labs/types";
+import { LimitsPanel } from "./LimitsPanel";
+import bundledLimits from "./slider-limits.json";
+import { withLimits, type SliderLimits } from "./sliderLimits";
 import "./styles.css";
 
 type State = { labId: string; values: LabValues; hide: boolean };
@@ -66,8 +69,11 @@ function matches(lab: Lab, values: LabValues, preset: Preset): boolean {
 
 export function App() {
   const [state, setState] = useState<State>(readState);
+  const [limits, setLimits] = useState<SliderLimits>(bundledLimits as SliderLimits);
+  const [editingLimits, setEditingLimits] = useState(false);
   const lab = labById(state.labId);
   const checks = useMemo(() => modelChecks(), []);
+  const fields = withLimits(lab.id, lab.fields(state.values), limits);
   const view = useMemo(() => {
     try {
       return lab.build(state.values, state.hide);
@@ -86,6 +92,32 @@ export function App() {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, []);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV) return;
+    fetch("/api/slider-limits")
+      .then((response) => (response.ok ? response.json() : null))
+      .then((saved: unknown) => {
+        if (saved && typeof saved === "object") setLimits(saved as SliderLimits);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const nextValues = { ...state.values };
+    let changed = false;
+    for (const field of fields) {
+      if (field.kind !== "slider") continue;
+      const value = Number(nextValues[field.key]);
+      if (!Number.isFinite(value)) continue;
+      const clamped = Math.min(field.max, Math.max(field.min, value));
+      if (clamped !== value) {
+        nextValues[field.key] = clamped;
+        changed = true;
+      }
+    }
+    if (changed) commit({ ...state, values: nextValues }, true);
+  }, [fields, state]);
 
   function commit(next: State, replace: boolean) {
     setState(next);
@@ -215,6 +247,11 @@ export function App() {
             <p className="chinese-title">{lab.chinese}</p>
           </div>
           <div className="stage-actions">
+            {import.meta.env.DEV ? (
+              <button className="reset" type="button" onClick={() => setEditingLimits((open) => !open)}>
+                Limits
+              </button>
+            ) : null}
             <button className="reset" type="button" onClick={resetValues}>
               Reset to default
             </button>
@@ -223,6 +260,9 @@ export function App() {
             </button>
           </div>
         </header>
+        {editingLimits ? (
+          <LimitsPanel labId={lab.id} fields={lab.fields(state.values)} limits={limits} onSaved={setLimits} />
+        ) : null}
         <div className="stage-body">
           {checks.length > 0 ? <p className="checks">Model check failed: {checks.join("; ")}</p> : null}
           <div className="canvas">{view.diagram}</div>
@@ -237,7 +277,7 @@ export function App() {
             </ul>
           ) : null}
         </div>
-        <div className="parameter-bar">{renderFields(lab.fields(state.values))}</div>
+        <div className="parameter-bar">{renderFields(fields)}</div>
         <footer className="explain">
           {state.hide ? (
             <>

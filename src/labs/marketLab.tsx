@@ -46,11 +46,11 @@ export const marketLab: Lab = {
   fields: (values) => [
     pedField,
     pesField,
-    { kind: "slider", key: "demandShift", label: "Demand shift (willingness to pay)", min: -14, max: 14, step: 0.5 },
-    { kind: "slider", key: "supplyShift", label: "Supply shift (higher costs are +)", min: -14, max: 14, step: 0.5 },
+    { kind: "slider", key: "demandShift", label: "Demand shift (willingness to pay)", min: -8, max: 8, step: 0.5 },
+    { kind: "slider", key: "supplyShift", label: "Supply shift (higher costs are +)", min: -8, max: 8, step: 0.5 },
     { kind: "toggle", key: "usePrice", label: "Set a disequilibrium price" },
     ...(boolOf(values, "usePrice")
-      ? [{ kind: "slider" as const, key: "observedPrice", label: "Observed price", min: 0, max: 28, step: 0.5 }]
+      ? [{ kind: "slider" as const, key: "observedPrice", label: "Observed price", min: 2, max: 18, step: 0.5 }]
       : []),
   ],
   build: (values, hide) => {

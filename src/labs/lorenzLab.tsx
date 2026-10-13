@@ -19,7 +19,7 @@ export const lorenzLab: Lab = {
     { id: "equal", label: "Closer to equality", detail: "A low Gini coefficient.", values: { inequality: 0.18, redistribution: 0 } },
   ],
   fields: () => [
-    { kind: "slider", key: "inequality", label: "Inequality before policy", min: 0, max: 0.95, step: 0.01 },
+    { kind: "slider", key: "inequality", label: "Inequality before policy", min: 0.05, max: 0.85, step: 0.01 },
     { kind: "slider", key: "redistribution", label: "Redistribution", min: 0, max: 1, step: 0.01 },
   ],
   build: (values) => {

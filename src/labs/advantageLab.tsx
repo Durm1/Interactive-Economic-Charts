@@ -40,11 +40,11 @@ export const advantageLab: Lab = {
     { id: "outside", label: "Terms of trade too low", detail: "Outside the two opportunity costs, one country will not trade.", values: { foodA: 100, clothA: 50, foodB: 60, clothB: 60, terms: 0.3 } },
   ],
   fields: () => [
-    { kind: "slider", key: "foodA", label: "Country A maximum food", min: 10, max: 240, step: 5 },
-    { kind: "slider", key: "clothA", label: "Country A maximum cloth", min: 10, max: 240, step: 5 },
-    { kind: "slider", key: "foodB", label: "Country B maximum food", min: 10, max: 240, step: 5 },
-    { kind: "slider", key: "clothB", label: "Country B maximum cloth", min: 10, max: 240, step: 5 },
-    { kind: "slider", key: "terms", label: "Terms of trade (cloth per unit of food)", min: 0.1, max: 3.5, step: 0.05 },
+    { kind: "slider", key: "foodA", label: "Country A maximum food", min: 20, max: 160, step: 5 },
+    { kind: "slider", key: "clothA", label: "Country A maximum cloth", min: 20, max: 160, step: 5 },
+    { kind: "slider", key: "foodB", label: "Country B maximum food", min: 20, max: 160, step: 5 },
+    { kind: "slider", key: "clothB", label: "Country B maximum cloth", min: 20, max: 160, step: 5 },
+    { kind: "slider", key: "terms", label: "Terms of trade (cloth per unit of food)", min: 0.2, max: 2, step: 0.05 },
   ],
   build: (values) => {
     const a: CountryPpc = { name: "A", food: numOf(values, "foodA"), cloth: numOf(values, "clothA") };

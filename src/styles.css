@@ -161,6 +161,44 @@ button, input, select { font: inherit; color: inherit; }
 .reset:hover { border-color: #cfcfcf; }
 .reset:active { transform: translateY(1px); background: #f6f7f8; }
 
+.limits {
+  display: grid;
+  gap: 8px;
+  margin: 0 28px 8px;
+  padding: 12px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.limits-head h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+.limits-head p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+.limits-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px 88px;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+}
+.limits-row input {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.limits-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.limits-actions span { color: var(--muted); font-size: 12px; }
+
 .stage-body {
   flex: 1;
   min-height: 0;
