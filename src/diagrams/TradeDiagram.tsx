@@ -90,7 +90,7 @@ export function TradeDiagram({ result, aria }: { result: TradeResult; aria: stri
           </g>
           {placeAxisTags(scales, tradeQuantities(result, freeQs, freeQd)).map((tag) => (
             <g key={tag.label}>
-              <rect x={tag.x - 14} y={tag.y - 11} width="28" height="14" fill="#fff" />
+              <rect x={tag.box.x - 2} y={tag.box.y - 1} width={tag.box.w + 4} height={tag.box.h + 2} fill="#fff" />
               <text x={tag.x} y={tag.y} textAnchor="middle" className="curve-label">
                 {tag.label}
               </text>

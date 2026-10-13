@@ -346,7 +346,8 @@ button, input, select { font: inherit; color: inherit; }
 .tick { font-size: 12px; fill: #5c5c5c; font-family: var(--sans); }
 .axis-label { font-size: 14px; fill: #121212; font-family: var(--serif); }
 .curve-label { font-size: 15px; font-weight: 600; fill: #121212; font-family: var(--serif); }
-.curve-label.ghost, .note-label { font-size: 12px; font-weight: 500; fill: #5c5c5c; font-family: var(--sans); }
+.curve-label.ghost, .note-label, .callout { font-size: 12px; font-weight: 500; fill: #5c5c5c; font-family: var(--sans); }
+.callout { fill: #121212; }
 
 .accounts {
   display: grid;

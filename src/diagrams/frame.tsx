@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useId } from "react";
 import { num } from "../lib/format";
+import { layoutAxisTags, type Box } from "./labels";
 
 export type Scales = {
   width: number;
@@ -156,24 +157,13 @@ export function ChartFrame({
   );
 }
 
-/** Put Q1, Q2… on the x-axis. A second label that would collide sits just above the axis. */
+/** Q, Q1, Y… on the x-axis. The habitual spot is below the axis; a tick or neighbour pushes it above. */
 export function placeAxisTags(
   scales: Scales,
   tags: { q: number; label: string }[],
-): { x: number; y: number; label: string }[] {
-  const sorted = tags
-    .filter((tag) => Number.isFinite(tag.q) && tag.q >= 0 && tag.q <= scales.qMax)
-    .sort((a, b) => a.q - b.q);
-  const placed: { x: number; y: number; label: string; row: number }[] = [];
-  const axisY = scales.y(0);
-  for (const tag of sorted) {
-    const x = scales.x(tag.q);
-    let row = 0;
-    while (placed.some((item) => item.row === row && Math.abs(item.x - x) < 30)) row += 1;
-    const y = row === 0 ? axisY + 16 : axisY - 14 - (row - 1) * 14;
-    placed.push({ x, y, label: tag.label, row });
-  }
-  return placed;
+  options?: { blocked?: Box[]; unit?: number },
+): { x: number; y: number; label: string; box: Box }[] {
+  return layoutAxisTags(scales, tags, ticks(scales.qMax), options);
 }
 
 export function poly(scales: Scales, points: { q: number; p: number }[]): string {
