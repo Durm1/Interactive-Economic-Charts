@@ -25,8 +25,8 @@ export const surplusLab: Lab = {
   fields: () => [
     pedField,
     pesField,
-    { kind: "slider", key: "demandShift", label: "Demand shift (willingness to pay)", min: -8, max: 8, step: 0.5 },
-    { kind: "slider", key: "supplyShift", label: "Supply shift (higher costs are +)", min: -8, max: 8, step: 0.5 },
+    { kind: "slider", key: "demandShift", label: "Demand shift (willingness to pay)", min: -14, max: 14, step: 0.5 },
+    { kind: "slider", key: "supplyShift", label: "Supply shift (higher costs are +)", min: -14, max: 14, step: 0.5 },
   ],
   build: (values, hide) => {
     const input = marketInput(values);

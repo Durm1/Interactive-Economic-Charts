@@ -56,11 +56,22 @@ function Geometry({
           const right = Math.max(...xs);
           const top = Math.min(...ys);
           const bottom = Math.max(...ys);
+          const rise = bottom - top;
+          const reach = rise + (right - left);
           const hatchId = `${markerId}-hatch-${index}`;
           const lines = [];
-          for (let y = top + 4; y < bottom - 1; y += 7) {
+          for (let offset = -reach; offset <= reach; offset += 8) {
             lines.push(
-              <line key={y} x1={left} x2={right} y1={y} y2={y} stroke="#1c1915" strokeWidth="1" strokeDasharray="3 3" />,
+              <line
+                key={offset}
+                x1={left + offset}
+                y1={top}
+                x2={left + offset + rise}
+                y2={bottom}
+                stroke="#1c1915"
+                strokeWidth="1"
+                strokeDasharray="3 3"
+              />,
             );
           }
           return (

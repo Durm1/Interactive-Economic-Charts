@@ -230,7 +230,7 @@ button, input, select { font: inherit; color: inherit; }
   vertical-align: -1px;
 }
 .legend i.dashed {
-  background: repeating-linear-gradient(to bottom, transparent 0 2px, #1c1915 2px 3px);
+  background: repeating-linear-gradient(-45deg, transparent 0 2px, #1c1915 2px 3.2px);
 }
 
 .explain {

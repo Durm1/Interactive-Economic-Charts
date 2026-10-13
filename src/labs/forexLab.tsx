@@ -35,8 +35,8 @@ export const forexLab: Lab = {
         ? [
             pedField,
             pesField,
-            { kind: "slider" as const, key: "demandShift", label: "Demand for £ (export demand, interest rates)", min: -6, max: 6, step: 0.5 },
-            { kind: "slider" as const, key: "supplyShift", label: "Supply of £ (+ is a decrease)", min: -6, max: 6, step: 0.5 },
+            { kind: "slider" as const, key: "demandShift", label: "Demand for £ (export demand, interest rates)", min: -12, max: 12, step: 0.5 },
+            { kind: "slider" as const, key: "supplyShift", label: "Supply of £ (+ is a decrease)", min: -12, max: 12, step: 0.5 },
             { kind: "toggle" as const, key: "importCosts", label: "Also shift SRAS for import costs" },
           ]
         : [{ kind: "select" as const, key: "policy", label: "Policy", options: [

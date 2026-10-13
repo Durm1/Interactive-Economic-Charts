@@ -43,8 +43,8 @@ export const taxLab: Lab = {
         ],
       },
       instrument === "advalorem"
-        ? { kind: "slider", key: "rate", label: "Tax rate (%)", min: 0, max: 40, step: 1 }
-        : { kind: "slider", key: "amount", label: "Amount per unit", min: 0, max: 8, step: 0.5 },
+        ? { kind: "slider", key: "rate", label: "Tax rate (%)", min: 0, max: 70, step: 1 }
+        : { kind: "slider", key: "amount", label: "Amount per unit", min: 0, max: 16, step: 0.5 },
       pedField,
       pesField,
     ];

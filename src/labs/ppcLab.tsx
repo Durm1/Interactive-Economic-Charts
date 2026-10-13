@@ -23,9 +23,9 @@ export const ppcLab: Lab = {
   ],
   fields: () => [
     { kind: "select", key: "shape", label: "Shape", options: [{ value: "increasing", label: "Increasing opportunity cost" }, { value: "constant", label: "Constant opportunity cost" }] },
-    { kind: "slider", key: "mix", label: "Mix towards consumer goods", min: 0.05, max: 0.95, step: 0.01 },
-    { kind: "slider", key: "utilization", label: "Resource use (1 = on the PPC)", min: 0.4, max: 1, step: 0.01 },
-    { kind: "slider", key: "growth", label: "Growth of resources", min: 0.8, max: 1.5, step: 0.05 },
+    { kind: "slider", key: "mix", label: "Mix towards consumer goods", min: 0, max: 1, step: 0.01 },
+    { kind: "slider", key: "utilization", label: "Resource use (1 = on the PPC)", min: 0.2, max: 1, step: 0.01 },
+    { kind: "slider", key: "growth", label: "Growth of resources", min: 0.5, max: 2.2, step: 0.05 },
     { kind: "toggle", key: "showOutside", label: "Show an unattainable point" },
   ],
   build: (values) => {

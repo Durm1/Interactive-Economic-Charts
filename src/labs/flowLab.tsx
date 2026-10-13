@@ -19,14 +19,14 @@ export const flowLab: Lab = {
   ],
   fields: (values) => [
     { kind: "toggle", key: "open", label: "Open economy" },
-    { kind: "slider", key: "investment", label: "Investment I", min: 0, max: 60, step: 1 },
-    { kind: "slider", key: "government", label: "Government spending G", min: 0, max: 60, step: 1 },
-    { kind: "slider", key: "saving", label: "Saving S", min: 0, max: 60, step: 1 },
-    { kind: "slider", key: "tax", label: "Tax T", min: 0, max: 60, step: 1 },
+    { kind: "slider", key: "investment", label: "Investment I", min: 0, max: 100, step: 1 },
+    { kind: "slider", key: "government", label: "Government spending G", min: 0, max: 100, step: 1 },
+    { kind: "slider", key: "saving", label: "Saving S", min: 0, max: 100, step: 1 },
+    { kind: "slider", key: "tax", label: "Tax T", min: 0, max: 100, step: 1 },
     ...(boolOf(values, "open")
       ? [
-          { kind: "slider" as const, key: "exports", label: "Exports X", min: 0, max: 40, step: 1 },
-          { kind: "slider" as const, key: "imports", label: "Imports M", min: 0, max: 40, step: 1 },
+          { kind: "slider" as const, key: "exports", label: "Exports X", min: 0, max: 70, step: 1 },
+          { kind: "slider" as const, key: "imports", label: "Imports M", min: 0, max: 70, step: 1 },
         ]
       : []),
   ],

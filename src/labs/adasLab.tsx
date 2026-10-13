@@ -109,9 +109,9 @@ function makeLab(id: "adas" | "policy"): Lab {
         ...(policy
           ? [{ kind: "select" as const, key: "instrument", label: "Policy", options: [{ value: "fiscal", label: "Fiscal policy" }, { value: "monetary", label: "Monetary policy" }, { value: "supply", label: "Supply-side policy" }] }]
           : [{ kind: "select" as const, key: "instrument", label: "If a policy is shifting AD", options: [{ value: "none", label: "Describe the shift only" }, { value: "fiscal", label: "Call it fiscal policy" }, { value: "monetary", label: "Call it monetary policy" }] }]),
-        { kind: "slider", key: "adShift", label: "AD shift (+ is an increase)", min: keynes ? -30 : -20, max: keynes ? 90 : 24, step: 1 },
-        ...(keynes ? [] : [{ kind: "slider" as const, key: "srasShift", label: "SRAS cost shock (+ is higher costs)", min: -12, max: 20, step: 1 }]),
-        { kind: "slider", key: "capacity", label: "Supply-side capacity", min: 0, max: 20, step: 1 },
+        { kind: "slider", key: "adShift", label: "AD shift (+ is an increase)", min: keynes ? -50 : -36, max: keynes ? 140 : 40, step: 1 },
+        ...(keynes ? [] : [{ kind: "slider" as const, key: "srasShift", label: "SRAS cost shock (+ is higher costs)", min: -24, max: 36, step: 1 }]),
+        { kind: "slider", key: "capacity", label: "Supply-side capacity", min: 0, max: 36, step: 1 },
       ];
     },
     build: (values) => {

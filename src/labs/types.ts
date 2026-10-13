@@ -55,8 +55,8 @@ export const pedField: Field = {
   kind: "slider",
   key: "ped",
   label: "PED at the initial equilibrium",
-  min: 0.2,
-  max: 4,
+  min: 0.1,
+  max: 6,
   step: 0.1,
 };
 
@@ -64,7 +64,7 @@ export const pesField: Field = {
   kind: "slider",
   key: "pes",
   label: "PES at the initial equilibrium",
-  min: 0.2,
-  max: 4,
+  min: 0.1,
+  max: 6,
   step: 0.1,
 };
