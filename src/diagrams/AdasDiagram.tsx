@@ -1,6 +1,9 @@
 import { visibleSegment } from "../models/curve";
-import { adasFrame, type AdasResult } from "../models/adas";
+import { adasFrame, keynesianShape, type AdasResult } from "../models/adas";
 import { ChartFrame, placeAxisTags, poly } from "./frame";
+
+const curveStroke = 1.45;
+const ghostStroke = 1.1;
 
 export function AdasDiagram({ result, aria }: { result: AdasResult; aria: string }) {
   const frame = adasFrame(result);
@@ -18,27 +21,22 @@ export function AdasDiagram({ result, aria }: { result: AdasResult; aria: string
         const sras = result.sras?.kind === "linear" ? visibleSegment(result.sras, frame.qMax, frame.pMax) : null;
         const baseSras = srasMoved && result.baseSras?.kind === "linear" ? visibleSegment(result.baseSras, frame.qMax, frame.pMax) : null;
         const keynesian = result.mode === "keynesian"
-          ? [
-              { q: 0, p: result.plFlat },
-              { q: result.y1, p: result.plFlat },
-              { q: result.yf, p: result.plTop },
-              { q: result.yf, p: frame.pMax },
-            ]
+          ? keynesianShape(result.y1, result.yf, result.plFlat, result.plTop, frame.pMax)
           : null;
         return (
           <>
             <g clipPath={`url(#${clipId})`}>
-              {baseAd ? <path d={poly(scales, baseAd)} fill="none" stroke="#b7b1a6" strokeWidth="1.6" strokeDasharray="6 4" /> : null}
-              {baseSras ? <path d={poly(scales, baseSras)} fill="none" stroke="#b7b1a6" strokeWidth="1.6" strokeDasharray="6 4" /> : null}
+              {baseAd ? <path d={poly(scales, baseAd)} fill="none" stroke="#b7b1a6" strokeWidth={ghostStroke} strokeDasharray="6 4" /> : null}
+              {baseSras ? <path d={poly(scales, baseSras)} fill="none" stroke="#b7b1a6" strokeWidth={ghostStroke} strokeDasharray="6 4" /> : null}
               {result.mode === "vertical" && result.yf !== result.baseYf ? (
                 <line x1={scales.x(result.baseYf)} x2={scales.x(result.baseYf)} y1={scales.y(0)} y2={scales.y(frame.pMax)} stroke="#b7b1a6" strokeDasharray="6 4" />
               ) : null}
               {result.mode === "vertical" ? (
-                <line x1={scales.x(result.yf)} x2={scales.x(result.yf)} y1={scales.y(0)} y2={scales.y(frame.pMax)} stroke="#1c1915" strokeWidth="2.2" />
+                <line x1={scales.x(result.yf)} x2={scales.x(result.yf)} y1={scales.y(0)} y2={scales.y(frame.pMax)} stroke="#1c1915" strokeWidth={curveStroke} />
               ) : null}
-              {keynesian ? <path d={poly(scales, keynesian)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
-              {sras ? <path d={poly(scales, sras)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
-              {ad ? <path d={poly(scales, ad)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
+              {keynesian ? <path d={poly(scales, keynesian)} fill="none" stroke="#1c1915" strokeWidth={curveStroke} /> : null}
+              {sras ? <path d={poly(scales, sras)} fill="none" stroke="#1c1915" strokeWidth={curveStroke} /> : null}
+              {ad ? <path d={poly(scales, ad)} fill="none" stroke="#1c1915" strokeWidth={curveStroke} /> : null}
               <line x1={scales.x(0)} y1={scales.y(result.pl)} x2={scales.x(result.y)} y2={scales.y(result.pl)} stroke="#1c1915" strokeDasharray="4 4" />
               <line x1={scales.x(result.y)} y1={scales.y(0)} x2={scales.x(result.y)} y2={scales.y(result.pl)} stroke="#1c1915" strokeDasharray="4 4" />
             </g>

@@ -39,14 +39,14 @@ export const accountsLab: Lab = {
     { id: "tot-down", label: "Terms of trade worsen", detail: "Import prices rise relative to export prices.", values: { exportIndex: 100, importIndex: 125 } },
   ],
   fields: () => [
-    { kind: "number", key: "goodsX", label: "Exports of goods", min: 0, max: 500, step: 1 },
-    { kind: "number", key: "goodsM", label: "Imports of goods", min: 0, max: 500, step: 1 },
-    { kind: "number", key: "servicesX", label: "Exports of services", min: 0, max: 500, step: 1 },
-    { kind: "number", key: "servicesM", label: "Imports of services", min: 0, max: 500, step: 1 },
-    { kind: "number", key: "primary", label: "Primary income (credit − debit)", min: -200, max: 200, step: 1 },
-    { kind: "number", key: "secondary", label: "Secondary income (credit − debit)", min: -200, max: 200, step: 1 },
-    { kind: "number", key: "exportIndex", label: "Export price index", min: 40, max: 200, step: 1 },
-    { kind: "number", key: "importIndex", label: "Import price index", min: 40, max: 200, step: 1 },
+    { kind: "slider", key: "goodsX", label: "Exports of goods", min: 0, max: 500, step: 1 },
+    { kind: "slider", key: "goodsM", label: "Imports of goods", min: 0, max: 500, step: 1 },
+    { kind: "slider", key: "servicesX", label: "Exports of services", min: 0, max: 500, step: 1 },
+    { kind: "slider", key: "servicesM", label: "Imports of services", min: 0, max: 500, step: 1 },
+    { kind: "slider", key: "primary", label: "Primary income (credit − debit)", min: -200, max: 200, step: 1 },
+    { kind: "slider", key: "secondary", label: "Secondary income (credit − debit)", min: -200, max: 200, step: 1 },
+    { kind: "slider", key: "exportIndex", label: "Export price index", min: 40, max: 200, step: 1 },
+    { kind: "slider", key: "importIndex", label: "Import price index", min: 40, max: 200, step: 1 },
   ],
   build: (values) => {
     const goods = numOf(values, "goodsX") - numOf(values, "goodsM");

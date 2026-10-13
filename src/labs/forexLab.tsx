@@ -83,7 +83,7 @@ export const forexLab: Lab = {
     });
     return {
       diagram: (
-        <div className="diagram-stack">
+        <div className="diagram-grid">
           <MarketDiagram figure={figure.figure} hide={hide} />
           <AdasDiagram result={adas} aria="Effect on the domestic price level and real GDP" />
         </div>

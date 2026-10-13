@@ -17,7 +17,7 @@ export function ppcOpportunityCost(x: number, xMax: number, yMax: number, increa
   return (yLeft - yRight) / (right - left);
 }
 
-export function ppcSamples(xMax: number, yMax: number, increasing: boolean, steps = 48): PpcPoint[] {
+export function ppcSamples(xMax: number, yMax: number, increasing: boolean, steps = 96): PpcPoint[] {
   const pts: PpcPoint[] = [];
   for (let i = 0; i <= steps; i++) {
     const x = (xMax * i) / steps;

@@ -90,29 +90,33 @@ function solveKeynesian(input: AdasInput): AdasResult {
   const plTop = keynesian.plTop;
   const baseAd = linear(keynesian.adIntercept, keynesian.adSlope);
   const ad = linear(keynesian.adIntercept - keynesian.adSlope * input.adShift, keynesian.adSlope);
-  const slopeK = (plTop - plFlat) / Math.max(1, yf - y1);
 
   const yFlat = (plFlat - ad.intercept) / ad.slope;
   let y = 0;
   let pl = plFlat;
   let region: AdasRegion = "elastic";
+  const adAtY1 = priceAt(ad, y1);
 
-  if (yFlat >= 0 && yFlat <= y1 + 1e-6) {
-    y = yFlat;
+  if (adAtY1 <= plFlat + 1e-9) {
+    y = Math.max(0, yFlat);
     pl = plFlat;
     region = "elastic";
+  } else if (priceAt(ad, yf) >= plTop - 1e-9) {
+    y = yf;
+    pl = priceAt(ad, yf);
+    region = "full";
   } else {
-    const yMid = (plFlat - slopeK * y1 - ad.intercept) / (ad.slope - slopeK);
-    const plMid = plFlat + slopeK * (yMid - y1);
-    if (yMid >= y1 - 1e-6 && yMid <= yf + 1e-6) {
-      y = Math.min(yf, Math.max(y1, yMid));
-      pl = plMid;
-      region = y >= yf - 0.5 ? "full" : "intermediate";
-    } else {
-      y = yf;
-      pl = priceAt(ad, yf);
-      region = "full";
+    let lo = y1;
+    let hi = yf;
+    for (let i = 0; i < 48; i++) {
+      const mid = (lo + hi) / 2;
+      const gap = priceAt(ad, mid) - keynesPrice(mid, y1, yf, plFlat, plTop);
+      if (gap > 0) lo = mid;
+      else hi = mid;
     }
+    y = (lo + hi) / 2;
+    pl = keynesPrice(y, y1, yf, plFlat, plTop);
+    region = "intermediate";
   }
 
   return {
@@ -131,6 +135,31 @@ function solveKeynesian(input: AdasInput): AdasResult {
     plTop,
     baseYf: keynesian.yf,
   };
+}
+
+/** Flat, then a tightening bend, then vertical. The bend starts level with the flat section. */
+export function keynesPrice(y: number, y1: number, yf: number, plFlat: number, plTop: number): number {
+  if (!(yf > y1) || y <= y1) return plFlat;
+  if (y >= yf) return plTop;
+  const t = (y - y1) / (yf - y1);
+  return plFlat + (plTop - plFlat) * t * t * t;
+}
+
+export function keynesianShape(
+  y1: number,
+  yf: number,
+  plFlat: number,
+  plTop: number,
+  pMax: number,
+): { q: number; p: number }[] {
+  const pts: { q: number; p: number }[] = [{ q: 0, p: plFlat }];
+  const steps = 36;
+  for (let i = 0; i <= steps; i++) {
+    const q = y1 + ((yf - y1) * i) / steps;
+    pts.push({ q, p: keynesPrice(q, y1, yf, plFlat, plTop) });
+  }
+  pts.push({ q: yf, p: Math.max(plTop, pMax) });
+  return pts;
 }
 
 export function adasFrame(result: AdasResult): { qMax: number; pMax: number } {

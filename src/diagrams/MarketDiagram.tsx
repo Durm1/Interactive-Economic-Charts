@@ -92,7 +92,7 @@ function Geometry({
             d={poly(scales, segment)}
             fill="none"
             stroke={item.ghost ? "#b7b1a6" : "#1c1915"}
-            strokeWidth={item.ghost ? 1.6 : 2.2}
+            strokeWidth={item.ghost ? 1.1 : 1.45}
             strokeDasharray={item.ghost ? "6 4" : undefined}
           />
         );

@@ -68,8 +68,8 @@ export function TradeDiagram({ result, aria }: { result: TradeResult; aria: stri
                 fill="rgba(28, 25, 21, 0.12)"
               />
             ) : null}
-            {demand ? <path d={poly(scales, demand)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
-            {supply ? <path d={poly(scales, supply)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
+            {demand ? <path d={poly(scales, demand)} fill="none" stroke="#1c1915" strokeWidth="1.45" /> : null}
+            {supply ? <path d={poly(scales, supply)} fill="none" stroke="#1c1915" strokeWidth="1.45" /> : null}
             <line x1={scales.x(0)} x2={scales.x(qMax)} y1={scales.y(result.worldPrice)} y2={scales.y(result.worldPrice)} stroke="#1c1915" strokeDasharray="5 4" />
             {showDomestic ? (
               <line x1={scales.x(0)} x2={scales.x(qMax)} y1={scales.y(result.domesticPrice)} y2={scales.y(result.domesticPrice)} stroke="#1c1915" strokeWidth="1.6" />

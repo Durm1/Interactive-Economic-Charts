@@ -51,9 +51,9 @@ export const meritLab: Lab = {
             const supplySeg = visibleSegment(supply, qMax, pMax);
             return (
               <g clipPath={`url(#${clipId})`}>
-                {actualSeg ? <path d={poly(scales, actualSeg)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
-                {perceivedSeg ? <path d={poly(scales, perceivedSeg)} fill="none" stroke="#1c1915" strokeWidth="2.2" strokeDasharray="7 4" /> : null}
-                {supplySeg ? <path d={poly(scales, supplySeg)} fill="none" stroke="#1c1915" strokeWidth="2.2" /> : null}
+                {actualSeg ? <path d={poly(scales, actualSeg)} fill="none" stroke="#1c1915" strokeWidth="1.45" /> : null}
+                {perceivedSeg ? <path d={poly(scales, perceivedSeg)} fill="none" stroke="#1c1915" strokeWidth="1.45" strokeDasharray="7 4" /> : null}
+                {supplySeg ? <path d={poly(scales, supplySeg)} fill="none" stroke="#1c1915" strokeWidth="1.45" /> : null}
                 {!hide && market ? <circle cx={scales.x(market.q)} cy={scales.y(market.p)} r="4.2" fill="#1c1915" /> : null}
                 {!hide && full ? <circle cx={scales.x(full.q)} cy={scales.y(full.p)} r="4.2" fill="#fff" stroke="#1c1915" /> : null}
                 <text x={scales.x(70)} y={scales.y(priceAt(actual, 70)) - 8} className="curve-label">D actual</text>

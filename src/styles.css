@@ -243,8 +243,9 @@ button, input, select { font: inherit; color: inherit; }
 .parameter-bar:empty { display: none; }
 .parameter-bar .field { margin-bottom: 0; }
 
-.diagram-grid, .diagram-stack { display: grid; gap: 12px; }
+.diagram-grid, .diagram-stack { display: grid; gap: 12px; height: 100%; }
 .diagram-grid { grid-template-columns: 1fr 1fr; }
+.diagram-grid > *, .diagram-stack > * { min-width: 0; min-height: 0; height: 100%; }
 .diagram-stack { grid-template-columns: 1fr; }
 
 .legend {
@@ -333,7 +334,13 @@ button, input, select { font: inherit; color: inherit; }
 
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; }
 .field span { display: flex; justify-content: space-between; gap: 8px; }
-.field b { font-variant-numeric: tabular-nums; font-weight: 500; }
+.field b {
+  display: inline-block;
+  min-width: 4.8ch;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
 .slider {
   display: block;
   border-radius: 999px;

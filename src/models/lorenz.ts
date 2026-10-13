@@ -12,7 +12,7 @@ export function kFromInequality(inequality: number): number {
   return (1 + t) / (1 - t);
 }
 
-export function lorenzSamples(k: number, steps = 40): { x: number; y: number }[] {
+export function lorenzSamples(k: number, steps = 96): { x: number; y: number }[] {
   const pts = [];
   for (let i = 0; i <= steps; i++) {
     const x = i / steps;

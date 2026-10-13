@@ -151,7 +151,7 @@ export function App() {
           <label key={field.key} className="field">
             <span>
               {field.label}
-              <b>{Number.isFinite(value) ? value : ""}</b>
+              <b>{Number.isFinite(value) ? value.toFixed(decimalPlaces(field.step)) : ""}</b>
             </span>
             <span className="slider">
               <input

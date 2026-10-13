@@ -55,7 +55,7 @@ export function PolylineChart({
                 d={poly(scales, item.points)}
                 fill="none"
                 stroke={item.dashed ? "#b7b1a6" : "#1c1915"}
-                strokeWidth={item.width ?? (item.dashed ? 1.6 : 2.2)}
+                strokeWidth={item.width ?? (item.dashed ? 1.1 : 1.45)}
                 strokeDasharray={item.dashed ? "6 4" : undefined}
               />
             ))}
