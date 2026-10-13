@@ -340,11 +340,10 @@ function layoutFigure(figure: MarketFigure, hide: boolean, scales: Scales, unit:
   for (const item of figure.curves) {
     const segment = visibleSegment(item.curve, scales.qMax, scales.pMax);
     if (!segment) continue;
-    const demand = item.label.startsWith("D");
-    const spot = curveNameSpot(segment, demand, scales.pMax);
-    const x = scales.x(spot.q);
-    const y = scales.y(spot.p);
-    const nearRight = spot.q > scales.qMax * 0.9;
+    const end = segment[segment.length - 1];
+    const x = scales.x(end.q);
+    const y = scales.y(end.p);
+    const nearRight = end.q > scales.qMax * 0.9;
     const habitDx = nearRight ? -18 : 12;
     const habitDy = -14;
     const side = (dx: number): Candidate["anchor"] => (dx < 0 ? "end" : "start");
@@ -408,21 +407,4 @@ function layoutFigure(figure: MarketFigure, hide: boolean, scales: Scales, unit:
   });
 
   return { shorts, tags, notes: placedNotes, leaders };
-}
-
-/** Keep D and S on the sloping part of the curve, not on the x-axis. */
-function curveNameSpot(
-  segment: { q: number; p: number }[],
-  demand: boolean,
-  pMax: number,
-): { q: number; p: number } {
-  const start = segment[0];
-  const end = segment[segment.length - 1];
-  const low = (point: { p: number }) => point.p < pMax * 0.18;
-  if (demand && low(end)) {
-    const t = 0.62;
-    return { q: start.q + (end.q - start.q) * t, p: start.p + (end.p - start.p) * t };
-  }
-  if (!demand && low(end) && !low(start)) return start;
-  return end;
 }

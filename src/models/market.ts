@@ -94,8 +94,17 @@ function welfare(demand: Curve, supply: Curve, q: number, pc: number, pp: number
   if (q <= 0) return { cs: 0, ps: 0 };
   return {
     cs: areaBetween(demand, 0, q, pc, true),
-    ps: areaBetween(supply, 0, q, pp, false),
+    ps: producerSurplus(supply, q, pp),
   };
+}
+
+/** Area above supply and below the price producers receive. A curve that crosses the quantity axis starts at that intercept, not at a negative price. */
+function producerSurplus(supply: Curve, q: number, pp: number): number {
+  if (supply.kind !== "linear" || !(q > 0)) return 0;
+  let start = 0;
+  if (supply.slope > 0 && supply.intercept < 0) start = -supply.intercept / supply.slope;
+  if (start >= q) return 0;
+  return areaBetween(supply, start, q, pp, false);
 }
 
 export function solveMarket(input: MarketInput): MarketResult {

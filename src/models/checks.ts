@@ -50,6 +50,22 @@ export function modelChecks(): string[] {
   close(skewed.consumerBurden, 3, "skewed consumer burden");
   close(skewed.producerBurden, 1, "skewed producer burden");
 
+  const inelasticSupply = solveMarket({
+    pRef: 10,
+    qRef: 40,
+    ped: 1,
+    pes: 0.5,
+    demandShift: 0,
+    supplyShift: 0,
+    tax: 0,
+    subsidy: 0,
+    ceiling: null,
+    floor: null,
+    observedPrice: null,
+  });
+  close(inelasticSupply.ps, 100, "inelastic supply ps");
+  close(inelasticSupply.cs, 200, "inelastic supply cs");
+
   const ceiling = solveMarket({
     pRef: 10,
     qRef: 40,
