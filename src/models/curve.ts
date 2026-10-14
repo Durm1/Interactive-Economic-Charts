@@ -69,6 +69,50 @@ export function elasticityAt(curve: Curve, p: number, q: number): number {
   return Math.abs((1 / curve.slope) * (p / q));
 }
 
+/** Where an upward supply curve meets the quantity axis. Zero when it meets the price axis instead. */
+export function supplyAxisIntercept(supply: Curve): number {
+  if (supply.kind !== "linear" || !(supply.slope > 0) || !(supply.intercept < 0)) return 0;
+  return -supply.intercept / supply.slope;
+}
+
+/**
+ * Producer surplus is the area below the price producers receive and above their
+ * minimum acceptable price. Where the supply curve is below the quantity axis,
+ * that minimum is zero, so the area includes the rectangle back to the origin.
+ */
+export function producerSurplus(supply: Curve, q: number, price: number): number {
+  if (supply.kind !== "linear" || !(q > 0) || !(price > 0)) return 0;
+  const q0 = Math.min(q, supplyAxisIntercept(supply));
+  const above = areaBetween(supply, q0, q, price, false);
+  return price * q0 + above;
+}
+
+/** Polygon for the same area as producerSurplus, so the shading and the number match. */
+export function producerSurplusOutline(supply: Curve, q: number, price: number): { q: number; p: number }[] {
+  if (supply.kind !== "linear" || !(q > 0) || !(price > 0)) return [];
+  const q0 = supplyAxisIntercept(supply);
+  const meet = supply.slope > 1e-12 ? (price - supply.intercept) / supply.slope : q;
+  const endQ = Math.min(q, Math.max(q0, meet));
+  if (!(endQ > 1e-6)) return [];
+  const endP = Math.min(price, Math.max(0, priceAt(supply, endQ)));
+  if (q0 > 1e-6 && q0 < endQ) {
+    return [
+      { q: 0, p: 0 },
+      { q: q0, p: 0 },
+      { q: endQ, p: endP },
+      { q: endQ, p: price },
+      { q: 0, p: price },
+    ];
+  }
+  const startP = Math.max(0, Math.min(price, supply.intercept));
+  return [
+    { q: 0, p: startP },
+    { q: endQ, p: endP },
+    { q: endQ, p: price },
+    { q: 0, p: price },
+  ];
+}
+
 /** ∫ max(priceOnCurve − level, 0) dq, or the area below the level. Closed form, no recursion. */
 export function areaBetween(
   curve: Curve,

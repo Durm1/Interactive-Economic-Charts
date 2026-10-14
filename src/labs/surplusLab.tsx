@@ -34,8 +34,15 @@ export const surplusLab: Lab = {
     const move = movementSentence(input, result);
     const dCs = result.cs - result.baseCs;
     const dPs = result.ps - result.basePs;
-    const english = `${move.en ? `${move.en} ` : ""}Consumer surplus is ${num(result.cs)} (${signed(dCs)} from the initial equilibrium). Producer surplus is ${num(result.ps)} (${signed(dPs)}). A higher price reduces consumer surplus and raises producer surplus, if the curves themselves do not change.`;
-    const chinese = `${move.zh}消费者剩余为 ${num(result.cs)}（相对最初均衡 ${signed(dCs)}），生产者剩余为 ${num(result.ps)}（${signed(dPs)}）。若曲线不变，价格上升会减少消费者剩余、增加生产者剩余。`;
+    const supplyCrosses = result.supply.kind === "linear" && result.supply.intercept < 0;
+    const shape = supplyCrosses
+      ? " Supply meets the quantity axis, so producer surplus is the rectangle under the price, from the origin to that intercept, plus the triangle above the supply curve."
+      : "";
+    const shapeZh = supplyCrosses
+      ? "供给曲线与横轴相交，原点到交点、价格线以下的矩形也是生产者剩余，要和供给曲线上方的三角形加在一起。"
+      : "";
+    const english = `${move.en ? `${move.en} ` : ""}Consumer surplus is ${num(result.cs)} (${signed(dCs)} from the initial equilibrium). Producer surplus is ${num(result.ps)} (${signed(dPs)}).${shape} A higher price reduces consumer surplus and raises producer surplus, if the curves themselves do not change.`;
+    const chinese = `${move.zh}消费者剩余为 ${num(result.cs)}（相对最初均衡 ${signed(dCs)}），生产者剩余为 ${num(result.ps)}（${signed(dPs)}）。${shapeZh}若曲线不变，价格上升会减少消费者剩余、增加生产者剩余。`;
     const drawn = marketFigure(result, input, {
       xLabel: "Quantity",
       yLabel: "Price",

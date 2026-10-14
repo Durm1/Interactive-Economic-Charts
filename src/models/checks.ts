@@ -63,7 +63,7 @@ export function modelChecks(): string[] {
     floor: null,
     observedPrice: null,
   });
-  close(inelasticSupply.ps, 100, "inelastic supply ps");
+  close(inelasticSupply.ps, 300, "inelastic supply ps");
   close(inelasticSupply.cs, 200, "inelastic supply cs");
 
   const ceiling = solveMarket({

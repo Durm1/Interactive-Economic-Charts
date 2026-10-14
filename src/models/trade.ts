@@ -1,4 +1,4 @@
-import { curveFromElasticity, priceAt, qtyAt, type Curve } from "./curve";
+import { curveFromElasticity, priceAt, producerSurplus, qtyAt, type Curve } from "./curve";
 
 export type TradeInstrument = "tariff" | "quota" | "subsidy";
 
@@ -52,15 +52,7 @@ function triangleWelfare(demand: Curve, supply: Curve, price: number) {
   const qd = Math.max(0, qtyAt(demand, price));
   const qs = Math.max(0, qtyAt(supply, price));
   const cs = demand.kind === "linear" ? Math.max(0, ((demand.intercept - price) * qd) / 2) : 0;
-  let ps = 0;
-  if (supply.kind === "linear") {
-    const c = supply.intercept;
-    if (c >= 0) ps = Math.max(0, ((price - c) * qs) / 2);
-    else {
-      const q0 = -c / supply.slope;
-      ps = Math.max(0, (price * (qs - q0)) / 2);
-    }
-  }
+  const ps = producerSurplus(supply, qs, price);
   return { qd, qs, cs, ps };
 }
 

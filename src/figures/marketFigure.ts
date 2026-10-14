@@ -1,5 +1,5 @@
 import type { Curve } from "../models/curve";
-import { priceAt } from "../models/curve";
+import { priceAt, producerSurplusOutline } from "../models/curve";
 import { snapMax } from "../diagrams/frame";
 import type { MarketInput, MarketResult } from "../models/market";
 
@@ -165,23 +165,8 @@ export function marketFigure(result: MarketResult, input: MarketInput, opts: Opt
       });
       legend.push({ name: "Consumer surplus", color: fills.cs });
     }
-    const c = result.supply.intercept;
-    const sEnd = priceAt(result.supply, result.traded);
-    const psPoints: Pt[] =
-      c >= 0
-        ? [
-            { q: 0, p: c },
-            { q: result.traded, p: sEnd },
-            { q: result.traded, p: result.pp },
-            { q: 0, p: result.pp },
-          ]
-        : [
-            { q: -c / result.supply.slope, p: 0 },
-            { q: result.traded, p: sEnd },
-            { q: result.traded, p: result.pp },
-            { q: -c / result.supply.slope, p: result.pp },
-          ];
-    areas.push({ points: psPoints, fill: fills.ps, solution: true });
+    const psPoints = producerSurplusOutline(result.supply, result.traded, result.pp);
+    if (psPoints.length >= 3) areas.push({ points: psPoints, fill: fills.ps, solution: true });
     legend.push({ name: "Producer surplus", color: fills.ps });
   }
 
