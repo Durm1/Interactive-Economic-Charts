@@ -2,16 +2,19 @@ import { useEffect, useMemo, useState } from "react";
 import { modelChecks } from "./models/checks";
 import { labById, sections } from "./labs/registry";
 import type { Field, Lab, LabValue, LabValues, Preset } from "./labs/types";
+import { Home } from "./Home";
 import { LimitsPanel } from "./LimitsPanel";
 import bundledLimits from "./slider-limits.json";
 import { withLimits, type SliderLimits } from "./sliderLimits";
 import "./styles.css";
 
-type State = { labId: string; values: LabValues; hide: boolean };
+type State = { labId: string | null; values: LabValues; hide: boolean };
 
 function readState(): State {
   const params = new URLSearchParams(window.location.search);
-  const lab = labById(params.get("lab") ?? "market");
+  const requested = params.get("lab");
+  if (!requested) return { labId: null, values: {}, hide: false };
+  const lab = labById(requested);
   const values: LabValues = { ...lab.initial };
   for (const [key, initial] of Object.entries(lab.initial)) {
     const raw = params.get(key);
@@ -29,6 +32,12 @@ function readState(): State {
 }
 
 function writeUrl(state: State, replace: boolean) {
+  if (!state.labId) {
+    const next = window.location.pathname;
+    if (replace) window.history.replaceState(null, "", next);
+    else window.history.pushState(null, "", next);
+    return;
+  }
   const lab = labById(state.labId);
   const params = new URLSearchParams();
   params.set("lab", lab.id);
@@ -71,10 +80,11 @@ export function App() {
   const [state, setState] = useState<State>(readState);
   const [limits, setLimits] = useState<SliderLimits>(bundledLimits as SliderLimits);
   const [editingLimits, setEditingLimits] = useState(false);
-  const lab = labById(state.labId);
+  const lab = state.labId ? labById(state.labId) : null;
   const checks = useMemo(() => modelChecks(), []);
-  const fields = withLimits(lab.id, lab.fields(state.values), limits);
+  const fields = lab ? withLimits(lab.id, lab.fields(state.values), limits) : [];
   const view = useMemo(() => {
+    if (!lab) return null;
     try {
       return lab.build(state.values, state.hide);
     } catch {
@@ -129,17 +139,24 @@ export function App() {
     commit({ labId: nextLab.id, values: { ...nextLab.initial }, hide: false }, false);
   }
 
+  function goHome() {
+    commit({ labId: null, values: {}, hide: false }, false);
+  }
+
   function setValue(key: string, value: LabValue) {
+    if (!lab) return;
     const merged = { ...state.values, [key]: value };
     const values = lab.onChange ? lab.onChange(key, merged) : merged;
     commit({ ...state, values }, true);
   }
 
   function applyPreset(preset: Preset) {
+    if (!lab) return;
     commit({ ...state, values: { ...lab.initial, ...preset.values }, hide: false }, true);
   }
 
   function resetValues() {
+    if (!lab) return;
     commit({ ...state, values: { ...lab.initial }, hide: false }, true);
   }
 
@@ -214,12 +231,16 @@ export function App() {
     });
   }
 
+  if (!lab || !view) return <Home onOpen={selectLab} />;
+
   return (
     <div className="app">
       <aside className="sidebar">
         <header className="brand">
           <p className="eyebrow">CIE 9708 · AS Level</p>
-          <h1>Interactive diagrams</h1>
+          <button type="button" className="brand-home" onClick={goHome}>
+            <h1>Interactive diagrams</h1>
+          </button>
           <p className="brand-zh">按 2026–2028 考纲把标准图做成可调参数的实验。</p>
         </header>
         <nav>
@@ -248,6 +269,9 @@ export function App() {
             <p className="chinese-title">{lab.chinese}</p>
           </div>
           <div className="stage-actions">
+            <button className="reset" type="button" onClick={goHome}>
+              All diagrams
+            </button>
             {import.meta.env.DEV ? (
               <button className="reset" type="button" onClick={() => setEditingLimits((open) => !open)}>
                 Limits

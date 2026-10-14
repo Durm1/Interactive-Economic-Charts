@@ -54,6 +54,22 @@ button, input, select { font: inherit; color: inherit; }
 
 .brand h1 { font-size: 34px; line-height: 0.95; }
 
+.brand-home {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.brand-home:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 4px;
+}
+
 .eyebrow {
   margin: 0 0 6px;
   letter-spacing: 0.16em;
@@ -129,8 +145,10 @@ button, input, select { font: inherit; color: inherit; }
 
 .stage-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  justify-content: flex-end;
   flex-shrink: 0;
 }
 
@@ -421,6 +439,147 @@ button, input, select { font: inherit; color: inherit; }
   margin-bottom: 10px;
 }
 
+.home {
+  min-height: 100vh;
+  overflow: auto;
+  padding: 48px 48px 80px;
+  background: var(--paper);
+  scrollbar-color: #cfcfcf transparent;
+}
+.home ::selection {
+  background: #dbe4ff;
+  color: var(--ink);
+}
+.home-head { max-width: 40rem; }
+.home-head h1 {
+  margin: 0;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+.home-head p {
+  max-width: 62ch;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.home-head .chinese { margin-top: 6px; font-size: 15px; }
+
+.home-section { margin-top: 56px; }
+.home-section-head { margin-bottom: 16px; }
+.home-section-head h2 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: 28px;
+  letter-spacing: -0.03em;
+}
+.home-section-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.home-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.lab-card {
+  flex: 1 1 300px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(17, 17, 17, 0.05);
+  transition:
+    transform 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 180ms ease;
+}
+.lab-card:hover {
+  transform: translateY(-3px);
+  border-color: #d5d5d5;
+  box-shadow: 0 14px 28px rgba(18, 18, 18, 0.08);
+}
+.lab-card:focus-visible {
+  outline: 2px solid var(--cobalt);
+  outline-offset: 3px;
+}
+.lab-card:active { transform: translateY(0) scale(0.985); }
+
+.card-preview {
+  position: relative;
+  display: block;
+  aspect-ratio: 760 / 500;
+  overflow: hidden;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+  pointer-events: none;
+}
+.card-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 760px;
+  height: 500px;
+  transform-origin: 0 0;
+}
+.card-scale > svg,
+.card-scale > .diagram-grid,
+.card-scale > .diagram-stack,
+.card-scale > .accounts,
+.card-scale .chart {
+  width: 100%;
+  height: 100%;
+}
+.card-scale .accounts {
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.card-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px 16px;
+}
+.card-copy strong {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.card-meta span:last-child {
+  flex-shrink: 0;
+  color: var(--cobalt);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-card { transition: none; }
+}
+
 @media (max-width: 1100px) {
   .app { display: block; height: auto; }
   .sidebar {
@@ -436,4 +595,10 @@ button, input, select { font: inherit; color: inherit; }
   .diagram-grid, .accounts { grid-template-columns: 1fr; }
   .stage-head { align-items: flex-start; }
   .stage-head h2 { font-size: 28px; }
+}
+
+@media (max-width: 720px) {
+  .home { padding: 28px 16px 56px; }
+  .home-head h1 { font-size: 2.5rem; }
+  .lab-card { max-width: none; }
 }

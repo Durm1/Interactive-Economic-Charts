@@ -150,7 +150,7 @@ function PlacedLabels({ figure, hide, scales, markerId }: { figure: MarketFigure
     const svg = ref.current?.ownerSVGElement;
     if (!svg) return;
     const read = () => {
-      const width = svg.getBoundingClientRect().width;
+      const width = svg.clientWidth;
       const next = width > 0 ? scales.width / width : 1;
       setUnit((prev) => (Math.abs(prev - next) < 0.02 ? prev : next));
     };
